@@ -20,7 +20,13 @@ public abstract class AbstractMovingObject extends AbstractGameObject implements
     
     public abstract void changeIcon (MovingDirection direction);
     
+    private int step = 1;
     
+    
+    @Override
+    public int getStep(){
+        return step;
+    }
 /*    @Override
     public void move (MovingDirection direction){
          int x = this.getCoordinates().getX();

@@ -5,6 +5,7 @@
  */
 package goldminer.objects.common;
 
+import goldminer.game.enums.ActionResult;
 import goldminer.game.enums.GameObjectType;
 import goldminer.game.enums.MovingDirection;
 import goldminer.objects.Coordinates;
@@ -149,12 +150,13 @@ public abstract class AbstractGameMap implements GameMap, Serializable{
   }
 */
 
-        public void move(MovingDirection movingDirection, GameObjectType gameObjectType) {
-        for (AbstractGameObject gameObject : getGameCollection().getObjectsByType(gameObjectType)) {
+    public ActionResult move(MovingDirection movingDirection, GameObjectType gameObjectType) {
+    /*    for (AbstractGameObject gameObject : getGameCollection().getObjectsByType(gameObjectType)) {
             if (gameObject instanceof AbstractMovingObject) { //need fix
                 AbstractMovingObject movingObject = (AbstractMovingObject) gameObject;
                 movingObject.move(movingDirection, this);
             }
-        }
+        }*/
+        return getGameCollection().moveObject(movingDirection, gameObjectType);
     }
 }

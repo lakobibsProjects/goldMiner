@@ -63,13 +63,8 @@ public class JTableGameMap implements DrawableMap{
         }
     }
     
-    
-
-
-
-
-
     private void updateObjectArray() {
+        
         mapObject = new AbstractGameObject[gameMap.getHeight()][gameMap.getWidth()];
         
         fillEmptyMap ((gameMap.getHeight()),(gameMap.getWidth()));

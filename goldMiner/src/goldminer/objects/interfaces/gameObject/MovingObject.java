@@ -20,5 +20,7 @@ public interface MovingObject extends StaticObject{
     
     void GameMoveResult (AbstractGameObject objectInNewCoordinate);
     
+    int getStep();
+    
     
 }

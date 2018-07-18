@@ -5,6 +5,7 @@
  */
 package goldminer.objects;
 
+import goldminer.game.enums.ActionResult;
 import goldminer.game.enums.GameObjectType;
 import static goldminer.game.enums.GameObjectType.NOTHING;
 import goldminer.game.enums.MovingDirection;
@@ -25,8 +26,7 @@ public class Miner extends AbstractMovingObject {
     
     public Miner (Coordinates coordinate){
         super.setCoordinates(coordinate);
-        super.setType(GameObjectType.GOLDMAN);
-                
+        super.setType(GameObjectType.GOLDMAN);                
         super.setIcon(getImageIcon("/goldminer/images/goldman_left.png"));
     }
     
@@ -93,12 +93,30 @@ public class Miner extends AbstractMovingObject {
                 changeIcon(direction);
                 setCoordinates(newCoordinate);
             }
-
+            
             default: {
             }
 
         }
 
+    }
+    
+    @Override
+    public  ActionResult doAction(AbstractGameObject gameObject){
+        
+        turnNumber++;
+        
+        switch (gameObject.getObjectType()){
+            case TREASURE:{
+                totalScore += ((Treasure)gameObject).getScore();
+                return ActionResult.COLLECT_TREASURE;
+            }
+            case MONSTER:{
+                return ActionResult.DIE;
+            }
+        }
+        
+        return super.doAction(gameObject);
     }
 
 }

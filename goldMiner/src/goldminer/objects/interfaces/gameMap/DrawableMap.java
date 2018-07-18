@@ -19,4 +19,6 @@ public interface DrawableMap {
     AbstractGameMap getMap();
     
     boolean drawMap();
+
+   AbstractGameMap getGameMap();
 }
