@@ -5,6 +5,7 @@
  */
 package goldminer.objects.common;
 
+import goldminer.game.enums.ActionResult;
 import static goldminer.game.enums.GameObjectType.NOTHING;
 import goldminer.game.enums.MovingDirection;
 import static goldminer.game.enums.MovingDirection.UP;
@@ -60,7 +61,31 @@ public abstract class AbstractMovingObject extends AbstractGameObject implements
          
          setCoordinates(newCoordinates);
     }*/
+    
+    private void actionBeforeMove(MovingDirection direction) {
+        changeIcon(direction);
+    }
 
+    public ActionResult doAction(AbstractGameObject gameObject) {
+        if (gameObject == null) {
+            return ActionResult.NO_ACTION;
+        }
+        
+        switch (gameObject.getObjectType()){
+            case NOTHING:{
+                return ActionResult.MOVE;
+            }                
+        }
+        return ActionResult.NO_ACTION;
+    }
+    
+    @Override
+    public ActionResult moveToObject(MovingDirection direction, AbstractGameObject gameObject){
+        actionBeforeMove(direction);
+        return doAction(gameObject);
+    }
+    
+    @Override
     public void move(MovingDirection movingDirection, AbstractGameMap gameMap) {
         Coordinates newCoordinate  = getNewCoordinates(movingDirection);
         
@@ -111,6 +136,8 @@ public abstract class AbstractMovingObject extends AbstractGameObject implements
          
          return newCoordinates;
     }
+
+
     
     
 }

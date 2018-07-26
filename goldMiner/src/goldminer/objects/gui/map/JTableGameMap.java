@@ -6,9 +6,13 @@
 package goldminer.objects.gui.map;
 
 
+import goldminer.game.enums.ActionResult;
 import goldminer.game.enums.GameObjectType;
 import goldminer.game.enums.LocationType;
+import goldminer.game.movestreategies.AgressiveMoving;
+import goldminer.game.movestreategies.SlowMoving;
 import goldminer.objects.Coordinates;
+import goldminer.objects.Miner;
 import goldminer.objects.Nothing;
 import goldminer.objects.Wall;
 import goldminer.objects.common.AbstractGameMap;
@@ -16,9 +20,13 @@ import goldminer.objects.common.AbstractGameObject;
 import goldminer.objects.creator.MapCreator;
 import goldminer.objects.interfaces.collections.GameCollection;
 import goldminer.objects.interfaces.gameMap.DrawableMap;
+import goldminer.objects.listeners.MoveResultListener;
 import goldminer.objects.map.ImageRenderer;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JTable;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -31,12 +39,10 @@ import javax.swing.table.TableModel;
 public class JTableGameMap implements DrawableMap{
     
     private JTable jTableMap = new JTable();
-    
-    private AbstractGameMap gameMap;
-    
-    private String[] columnNames;
-    
+    private AbstractGameMap gameMap;    
+    private String[] columnNames;    
     private AbstractGameObject[][] mapObject;
+    private TimeMover timeMover = new TimeMover();
     
     public JTableGameMap (LocationType type, Object source, GameCollection gameCollection){
         jTableMap.setEnabled(false);
@@ -52,7 +58,7 @@ public class JTableGameMap implements DrawableMap{
         gameMap = MapCreator.getInstance().CreateMap(type, gameCollection);
         gameMap.loadGame(source);
         
-        updateObjectArray();
+        //updateObjectArray();
     }
     
     private void fillEmptyMap(int width, int height){
@@ -119,4 +125,44 @@ public class JTableGameMap implements DrawableMap{
     public Component getMapComponent() {
          return jTableMap;
     }
+    
+    private class TimeMover implements ActionListener, MoveResultListener{
+    
+        private Timer timer;
+        private final static int MOVING_PAUSE = 500;
+        
+        private TimeMover(){
+            timer = new Timer(MOVING_PAUSE, this);
+            timer.setInitialDelay(1000);
+            timer.start();
+        }
+        
+        public void start(){
+            timer.start();
+        }
+        
+        public void stop(){
+            timer.stop();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            gameMap.getGameCollection().moveObject(new AgressiveMoving(),GameObjectType.MONSTER);
+        }
+
+        @Override
+        public void notifiActionResult(ActionResult actionResult, Miner miner) {
+            switch(actionResult){
+                case WIN:{
+                    timer.stop();
+                    break;
+                }
+                case DIE:{
+                    timer.stop();
+                    break;
+                }
+            }
+        }
+        
+}
 }

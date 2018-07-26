@@ -5,6 +5,7 @@
  */
 package goldminer.objects;
 
+import goldminer.game.enums.ActionResult;
 import goldminer.game.enums.GameObjectType;
 import goldminer.game.enums.MovingDirection;
 import goldminer.objects.Coordinates;
@@ -52,6 +53,22 @@ public class Monster extends AbstractMovingObject {
                 break;
             }      
         }
+    }
+    
+    @Override
+    public ActionResult doAction(AbstractGameObject gameObject){
+        
+        switch(gameObject.getObjectType()){
+            case TREASURE:
+            case MONSTER:{
+                return ActionResult.NO_ACTION;
+            }
+            case GOLDMAN:{
+                return ActionResult.DIE;
+            }
+        }
+        
+        return super.doAction(gameObject);
     }
 
    

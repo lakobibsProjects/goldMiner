@@ -5,6 +5,7 @@
  */
 package goldminer.objects.interfaces.gameObject;
 
+import goldminer.game.enums.ActionResult;
 import goldminer.objects.interfaces.gameObject.StaticObject;
 import goldminer.game.enums.MovingDirection;
 import goldminer.objects.common.AbstractGameMap;
@@ -15,6 +16,8 @@ import goldminer.objects.common.AbstractGameObject;
  * @author lakobib
  */
 public interface MovingObject extends StaticObject{
+    
+    ActionResult moveToObject(MovingDirection direction, AbstractGameObject gameObject);
     
     void move (MovingDirection direction, AbstractGameMap abstractGameMap);
     

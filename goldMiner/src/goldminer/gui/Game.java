@@ -5,6 +5,8 @@
  */
 package goldminer.gui;
 
+import goldminer.game.enums.ActionResult;
+import static goldminer.game.enums.ActionResult.DIE;
 import goldminer.game.enums.GameObjectType;
 import static goldminer.game.enums.GameObjectType.GOLDMAN;
 import goldminer.game.enums.MovingDirection;
@@ -12,29 +14,40 @@ import static goldminer.game.enums.MovingDirection.DOWN;
 import static goldminer.game.enums.MovingDirection.LEFT;
 import static goldminer.game.enums.MovingDirection.RIGHT;
 import static goldminer.game.enums.MovingDirection.UP;
+import goldminer.objects.Miner;
 import goldminer.objects.common.AbstractGameObject;
 import goldminer.objects.common.AbstractMovingObject;
 import goldminer.objects.interfaces.gameMap.DrawableMap;
 import goldminer.objects.interfaces.gameObject.MovingObject;
+import goldminer.objects.listeners.MoveResultListener;
+import goldmoner.utils.MessageManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  *
  * @author lakobib
  */
-public class Game extends ShablonFrame  implements ActionListener{
+public class Game extends ShablonFrame  implements ActionListener, KeyListener, MoveResultListener{
+    
+    private static final String DIE_MESSAGE="You are lose";
+    
+    private static final String WIN_MESSAGE="You are win. Total score = ";
 
-    private DrawableMap gameMap;
-    private ActionListener listener;
+    private DrawableMap map;
+    
     
     public Game() {
         initComponents();
     }
 
     void setMap(DrawableMap gameMap) {
-       this.gameMap = gameMap;
+       this.map = gameMap;
        gameMap.drawMap();
+       
+       gameMap.getMap().getGameCollection().AddMoveListener(this);
        
        panelGameField.removeAll();
        panelGameField.add(gameMap.getMapComponent()); 
@@ -86,7 +99,7 @@ public class Game extends ShablonFrame  implements ActionListener{
         panelGameField.setLayout(panelGameFieldLayout);
         panelGameFieldLayout.setHorizontalGroup(
             panelGameFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 323, Short.MAX_VALUE)
+            .addGap(0, 275, Short.MAX_VALUE)
         );
         panelGameFieldLayout.setVerticalGroup(
             panelGameFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,37 +158,31 @@ public class Game extends ShablonFrame  implements ActionListener{
                 .addContainerGap()
                 .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelCommandFieldLayout.createSequentialGroup()
-                        .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnSave, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(panelCommandFieldLayout.createSequentialGroup()
-                                .addComponent(butLeft, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(21, 21, 21))
-                    .addGroup(panelCommandFieldLayout.createSequentialGroup()
-                        .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnRight, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(panelCommandFieldLayout.createSequentialGroup()
+                                .addComponent(lblPoint)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblPoints))
+                            .addGroup(panelCommandFieldLayout.createSequentialGroup()
+                                .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnDown, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(lblTurn)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(lblbTurns)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel2))
-                                .addGroup(panelCommandFieldLayout.createSequentialGroup()
-                                    .addComponent(lblPoint)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(lblPoints))))
-                        .addContainerGap(49, Short.MAX_VALUE))))
-            .addGroup(panelCommandFieldLayout.createSequentialGroup()
-                .addGap(44, 44, 44)
-                .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnDown, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonUp, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(panelCommandFieldLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(21, 21, 21))
+                                    .addComponent(buttonUp, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblbTurns)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel2))
+                            .addGroup(panelCommandFieldLayout.createSequentialGroup()
+                                .addGap(9, 9, 9)
+                                .addComponent(butLeft, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(44, 44, 44)
+                                .addComponent(btnRight, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(26, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCommandFieldLayout.createSequentialGroup()
+                        .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(21, 21, 21))))
         );
         panelCommandFieldLayout.setVerticalGroup(
             panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -197,10 +204,10 @@ public class Game extends ShablonFrame  implements ActionListener{
                 .addGroup(panelCommandFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPoint)
                     .addComponent(lblPoints))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -233,19 +240,19 @@ public class Game extends ShablonFrame  implements ActionListener{
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelGameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelGameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCommandField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(22, 22, 22))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelGameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelCommandField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panelCommandField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelGameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -307,24 +314,63 @@ public class Game extends ShablonFrame  implements ActionListener{
 
 
     private void moveOject (MovingDirection movingDirection, GameObjectType gameObjectType){
-/*        AbstractGameObject gameObject = gameMap.getMap().getObjectsByType(gameObjectType).get(0);
+        map.getMap().getGameCollection().moveObject(movingDirection, gameObjectType);
         
-        gameMap.getMap().move();
-       
-        if (gameObject instanceof MovingObject) {
-            ((AbstractMovingObject)gameObject).Move(movingDirection);
-            gameMap.drawMap();
-        }
-*/
-        gameMap.getMap().move(movingDirection, gameObjectType);
-        gameMap.drawMap();
+        
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
     
+       private void gameFinished(String message) {
+        MessageManager.showInformMessage(null,message);
+        closeFrame();        
+    }
+       
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void notifiActionResult(ActionResult actionResult, Miner miner) {
+                
+        switch (actionResult){
+            case MOVE:{
+                lblbTurns.setText(String.valueOf(map.getMap().getTimeLimit()-miner.getTurnNumber()));
+                if (miner.getTurnNumber()>=map.getMap().getTimeLimit()) {
+                    gameFinished(DIE_MESSAGE);
+                }
+                break;
+            }
+            case DIE:{
+                gameFinished(DIE_MESSAGE);
+                break;
+            }
+            case WIN:{
+                gameFinished(WIN_MESSAGE+miner.getTotalScore());
+            }
+            case COLLECT_TREASURE:{
+                lblPoints.setText(String.valueOf(miner.getTotalScore()));
+                break;
+            }
+        }
+        map.drawMap();
+    }
 
 
 }

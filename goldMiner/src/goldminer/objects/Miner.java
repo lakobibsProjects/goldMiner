@@ -114,6 +114,10 @@ public class Miner extends AbstractMovingObject {
             case MONSTER:{
                 return ActionResult.DIE;
             }
+            case EXIT:{
+                totalScore *= 2;
+                return ActionResult.WIN;
+            }
         }
         
         return super.doAction(gameObject);

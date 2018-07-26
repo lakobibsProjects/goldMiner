@@ -1,28 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package goldminer.objects.map;
 
 import goldminer.game.enums.ActionResult;
 import goldminer.game.enums.GameObjectType;
 import goldminer.game.enums.MovingDirection;
+import goldminer.game.movestreategies.MoveStrategy;
 import goldminer.objects.Coordinates;
+import goldminer.objects.Miner;
 import goldminer.objects.Nothing;
 import goldminer.objects.common.AbstractGameObject;
 import goldminer.objects.common.AbstractMovingObject;
-import goldminer.objects.interfaces.collections.GameCollection;
+import goldminer.objects.listeners.MapListenersRegistrator;
+import goldminer.objects.listeners.MoveResultListener;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
-/**
- *
- * @author lakobib
- */
-public class MapCollection implements GameCollection {
+
+public class MapCollection extends MapListenersRegistrator {
     
     private HashMap<Coordinates, AbstractGameObject> gameObjects = new HashMap<>();
     private EnumMap<GameObjectType, ArrayList<AbstractGameObject>> typeObjects = new EnumMap<>(GameObjectType.class);
@@ -60,17 +56,34 @@ public class MapCollection implements GameCollection {
     public List<AbstractGameObject> getObjectsByType(GameObjectType type) {
         return typeObjects.get(type);
     }
+    
+    
 
     @Override
-    public ActionResult moveObject(MovingDirection direction, GameObjectType gameObjectType) {
+    public void moveObject(MovingDirection direction, GameObjectType gameObjectType) {
+        doMoveAction(direction,gameObjectType,null);
+
+    }
+      
+    @Override
+    public void moveObject(MoveStrategy moveStrategy, GameObjectType gameObjectType) {
+        doMoveAction(null,gameObjectType,moveStrategy);
+    }
+    
+    private void doMoveAction(MovingDirection direction, GameObjectType objectType, MoveStrategy movingStrategy){
+        Miner miner  = (Miner)  getObjectsByType(GameObjectType.GOLDMAN).get(0);
         
         ActionResult actionResult = null;
         
-        for (AbstractGameObject gameObject : this.getObjectsByType(gameObjectType)) {
+        for (AbstractGameObject gameObject : this.getObjectsByType(objectType)) {
             if (gameObject instanceof AbstractMovingObject) {
                 AbstractMovingObject movingObject = (AbstractMovingObject) gameObject;
                 
-                Coordinates newCoordinates = getNewCoordinates(direction, movingObject);
+                if (movingStrategy != null) {
+                    direction = movingStrategy.getDirection(movingObject, miner, this);
+                }
+                
+                Coordinates newCoordinates = movingObject.getNewCoordinates(direction);
                 
                 AbstractGameObject objectInNewCoordinates = getObjectByCoordinate(newCoordinates);
                 
@@ -85,11 +98,16 @@ public class MapCollection implements GameCollection {
                         swapObjects(movingObject, new Nothing(newCoordinates));
                         break;
                     }
+                    case WIN:{
+                        
+                    }
+                    case DIE:{
+                        break;
+                    }
                 }
             }
+            notifyListeners(actionResult, miner);
         }
-        
-        return actionResult;
     }
     
     private void swapObjects(AbstractGameObject object1, AbstractGameObject object2){
@@ -105,7 +123,7 @@ public class MapCollection implements GameCollection {
         object2.setCoordinates(tempCoordinates);
     }
     
-    private Coordinates getNewCoordinates(MovingDirection direction, AbstractMovingObject movingObject){
+/*    private Coordinates getNewCoordinates(MovingDirection direction, AbstractMovingObject movingObject){
         
         int x = movingObject.getCoordinates().getX();
         int y = movingObject.getCoordinates().getY();
@@ -133,4 +151,77 @@ public class MapCollection implements GameCollection {
         }
         return newCoordinate;
     }
+
+    @Override
+    public void moveObjectRandom(GameObjectType gameObjectType) {
+        moveObject(null, gameObjectType);
+    }*/
+
+    @Override
+    public void notifyListeners(ActionResult result, Miner miner) {
+        for (MoveResultListener listener : getMoveListeners()) {
+            listener.notifiActionResult(result, miner);
+        }
+    }
+
+/*    private MovingDirection getRandomMoveDirection(AbstractMovingObject movingObject) {
+        
+        Miner miner = (Miner) getObjectsByType(GameObjectType.GOLDMAN).get(0);
+       
+        MovingDirection direction = null;
+        
+        int characterX = miner.getCoordinates().getX();
+        int characterY = miner.getCoordinates().getY();
+        int monsterX = movingObject.getCoordinates().getX();
+        int monsterY = movingObject.getCoordinates().getY();
+        int number = getRandomInt(2);
+        
+        if (number == 1) {
+            number = getRandomInt(2);
+            switch (number){
+                case 1:{
+                    if (monsterX>characterX) {
+                        direction = MovingDirection.LEFT;
+                    }else{
+                        direction = MovingDirection.RIGHT;
+                    }
+                }
+                case 2:{
+                    if (monsterY>characterY) {
+                        direction = MovingDirection.UP;
+                    }else{
+                        direction = MovingDirection.DOWN;
+                    }
+                }
+            }
+        }else{
+            number = getRandomInt(2);
+            switch (number){
+                case 1:{
+                    if (monsterX>characterX) {
+                        direction = MovingDirection.RIGHT;
+                    }else{
+                        direction = MovingDirection.LEFT;
+                    }
+                }
+                case 2:{
+                    if (monsterY>characterY) {
+                        direction = MovingDirection.DOWN;
+                    }else{
+                        direction = MovingDirection.UP;
+                    }
+                }
+            }
+        }
+        
+        return direction;
+    }
+
+    private int getRandomInt(int i) {
+        Random r = new Random();
+        return r.nextInt(i)+1;
+    }*/
+
+
+
 }

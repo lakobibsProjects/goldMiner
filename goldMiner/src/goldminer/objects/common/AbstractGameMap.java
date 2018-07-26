@@ -150,13 +150,13 @@ public abstract class AbstractGameMap implements GameMap, Serializable{
   }
 */
 
-    public ActionResult move(MovingDirection movingDirection, GameObjectType gameObjectType) {
-    /*    for (AbstractGameObject gameObject : getGameCollection().getObjectsByType(gameObjectType)) {
+/*    public ActionResult move(MovingDirection movingDirection, GameObjectType gameObjectType) {
+        for (AbstractGameObject gameObject : getGameCollection().getObjectsByType(gameObjectType)) {
             if (gameObject instanceof AbstractMovingObject) { //need fix
                 AbstractMovingObject movingObject = (AbstractMovingObject) gameObject;
                 movingObject.move(movingDirection, this);
             }
-        }*/
+        }
         return getGameCollection().moveObject(movingDirection, gameObjectType);
-    }
+    }*/
 }

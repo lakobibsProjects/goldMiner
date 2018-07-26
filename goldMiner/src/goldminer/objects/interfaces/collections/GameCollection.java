@@ -1,20 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package goldminer.objects.interfaces.collections;
 
 import goldminer.game.enums.GameObjectType;
+import goldminer.game.enums.MovingDirection;
+import goldminer.game.movestreategies.MoveStrategy;
 import goldminer.objects.Coordinates;
 import goldminer.objects.common.AbstractGameObject;
+import goldminer.objects.listeners.MoveResultNotifier;
 import java.util.List;
 
-/**
- *
- * @author lakobib
- */
-public interface GameCollection {
+public interface GameCollection extends MoveResultNotifier{
     
     AbstractGameObject getObjectByCoordinate(Coordinates coordinate);
     
@@ -26,4 +20,7 @@ public interface GameCollection {
     
     List<AbstractGameObject> getObjectsByType(GameObjectType type);
     
+    void moveObject(MovingDirection direction, GameObjectType gameObjectType);
+    
+    void moveObject(MoveStrategy moveStrategy, GameObjectType gameObjectType);
 }
